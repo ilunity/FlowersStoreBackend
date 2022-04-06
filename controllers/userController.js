@@ -13,6 +13,7 @@ function generateJwt(id, email, role) {
 
 const userController = {
     async registration(req, res, next) {
+        // todo Убрать возможность выбирать роль
         const {email, password, role} = req.body;
         if (!email || !password) return next(APIError.noParameters());
 
