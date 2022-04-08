@@ -10,7 +10,7 @@ const categoryController = {
             attributes: ["id"],
             where: {name: categoryGroupName},
         });
-        if (categoryGroup === null) next(APIError.badRequest("Category group name doesn't exist"));
+        if (categoryGroup === null) next(APIError.badRequest("Category group name doesn't exists"));
 
         const category = await Category.create({name, categoryGroupId: categoryGroup.id});
 
@@ -19,6 +19,31 @@ const categoryController = {
     async getAll(req, res) {
         const categories = await Category.findAll();
         return res.json(categories);
+    },
+    async getByName(req, res, next) {
+        const {name} = res.query;
+
+        if (!name) next(APIError.noParameters());
+
+        const category = await Category.findOne({
+            attributes: ["id"],
+            where: {name},
+        });
+
+        if (category === null) next(APIError.badRequest("Category name doesn't exists"));
+
+        return res.json(category);
+    },
+    async getById(req, res, next) {
+        const {id} = res.query;
+
+        if (!id) next(APIError.noParameters());
+
+        const category = await Category.findByPk(id);
+
+        if (category === null) next(APIError.badRequest("Category id doesn't exists"));
+
+        return res.json(category);
     },
 };
 
