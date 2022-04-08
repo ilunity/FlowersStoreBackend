@@ -4,6 +4,25 @@ const {Item, CategoryItem, Category, ItemInfo} = require('../models/models');
 const APIError = require('../error/APIError');
 
 
+const getItemsByCategories = async (next, categoriesId, limit, offset) => {
+    const categoryItemsRelations = await CategoryItem.findAll({
+        attributes: ['itemId'],
+        where: {categoryId: categoriesId},
+    });
+
+
+    if (!categoryItemsRelations.length) next(APIError.badRequest("There are no items with these category"));
+    const itemIds = categoryItemsRelations.map(relation => relation.itemId);
+
+    const items = await Item.findAndCountAll({
+        where: {id: itemIds},
+        limit,
+        offset,
+    });
+
+    return items;
+}
+
 const itemController = {
     async create(req, res, next) {
         try {
@@ -58,43 +77,29 @@ const itemController = {
             next(APIError.badRequest(e.message));
         }
     },
-    async getAll(req, res, next) {
+    async getByCategories(req, res, next) {
         // todo Возвращать item, только если item.count > 0
-        const {categories: categoryNamesJSON, limit = 12, page = 1} = req.query;
+        const {categoriesIdJSON} = req.body;
+        const {limit = 12, page = 1} = req.query;
         const offset = page * limit - limit;
-        const categoryNames = JSON.parse(categoryNamesJSON);
 
-        if (!categoryNames) {
-            const {id} = req.params;
-            const item = await Item.findAll({limit, offset});
-
-            return res.json(item);
+        let categoriesId;
+        try {
+            categoriesId = JSON.parse(categoriesIdJSON);
+        } catch (error) {
+            next(APIError.noParameters());
         }
 
-        if (categoryNames) {
-            const categoryIds = await Category.findAll({
-                attributes: ['id'],
-                where: {name: categoryNames},
-            });
-            if (!categoryIds.length) next(APIError.badRequest("There is no such category"));
-            console.log(categoryIds);
+        const items = await getItemsByCategories(next, categoriesId, limit, offset);
 
-            const itemsIds = await CategoryItem.findAll({
-                attributes: ['id'],
-                where: {CategoryId: categoryIds,}
-            });
-            if (!itemsIds.length) next(APIError.badRequest("There are no items with these category"));
+        return res.json(items);
+    },
+    async getAll(req, res, next) {
+        const {limit = 12, page = 1} = req.query;
+        const offset = page * limit - limit;
 
-            const items = await Item.findAndCountAll({
-                where: {id: itemsIds},
-                limit,
-                offset,
-            });
+        const items = await Item.findAll({limit, offset});
 
-            return res.json(items);
-        }
-
-        const items = await Item.findAll();
         if (items === null) next(APIError.badRequest('There are no items'));
         return res.json(items);
     },

@@ -5,9 +5,10 @@ const userRoles = require("../models/userRoles");
 const router = new Router();
 
 
-router.post('/create', itemController.create);
-router.post('/setCategory', itemController.setCategory);
-router.get('/', itemController.getAll);
+router.post('/create', checkRole(userRoles.admin), itemController.create);
+router.post('/setCategory', checkRole(userRoles.admin), itemController.setCategory);
+router.post('/get', itemController.getByCategories);
+router.get('/get', itemController.getAll);
 router.get('/:id', itemController.getOne);
 
 
