@@ -5,8 +5,8 @@ const userRoles = require("../models/userRoles");
 const router = new Router();
 
 
-router.post('/', checkRole(userRoles.admin), categoryGroupController.create);
-router.get('/', categoryGroupController.getAll);
+router.post('/create', checkRole(userRoles.admin), categoryGroupController.create);
+router.get('/get', categoryGroupController.getAll);
 
 
 module.exports = router;
