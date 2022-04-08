@@ -1,4 +1,5 @@
-const {BasketItem, Basket} = require('../models/models');
+const {BasketItem, Basket, Item} = require('../models/models');
+const APIError = require('../error/APIError');
 
 const basketController = {
     async addItem(req, res, next) {
@@ -15,12 +16,18 @@ const basketController = {
         const userId = req.user.id;
 
         const basketId = await Basket.findOne({where: {userId}});
-        const userItems = await BasketItem.findAll({
+        const userItemsRelations = await BasketItem.findAll({
             where: {basketId},
         });
 
-        // todo проверить что возвращает
-        return res.json(userItems);
+        if (!userItemsRelations.length) next(APIError.badRequest("The basket is empty"));
+        const itemsId = userItemsRelations.map(relation => relation.itemId);
+
+        const items = Item.findAll({
+            where: {id: itemsId},
+        });
+
+        return res.json(items);
     },
 };
 
