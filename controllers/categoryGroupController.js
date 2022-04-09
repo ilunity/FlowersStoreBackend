@@ -1,5 +1,5 @@
 const APIError = require('../error/APIError');
-const {CategoryGroup} = require("../models/models");
+const {CategoryGroup, Category} = require("../models/models");
 
 const categoryGroupController = {
     async create(req, res, next) {
@@ -12,6 +12,13 @@ const categoryGroupController = {
     async getAll(req, res) {
         const categoryGroups = await CategoryGroup.findAll();
         return res.json(categoryGroups);
+    },
+    async getWithCategories(req, res) {
+        const groupedCategories = await CategoryGroup.findAll({
+            include: Category,
+        });
+
+        return res.json(groupedCategories);
     },
 };
 
