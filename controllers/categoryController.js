@@ -3,16 +3,27 @@ const {Category, CategoryGroup} = require('../models/models');
 
 const categoryController = {
     async create(req, res, next) {
-        const {name, categoryGroup: categoryGroupName} = req.body;
-        if (!name || !categoryGroupName) next(APIError.noParameters())
+        const {name, groupId, groupName} = req.body;
+        if (!name || !(groupName || groupId)) next(APIError.noParameters())
+
+
+        if (groupId) {
+            const categoryGroup = await CategoryGroup.findByPk(groupId);
+            if (categoryGroup === null) next(APIError.badRequest("Category group with such id doesn't exist"));
+
+            const category = await Category.create({name, groupId});
+            return res.json(category);
+        }
+
 
         const categoryGroup = await CategoryGroup.findOne({
             attributes: ["id"],
-            where: {name: categoryGroupName},
+            where: {name: groupName},
         });
-        if (categoryGroup === null) next(APIError.badRequest("Category group name doesn't exists"));
+        if (categoryGroup === null) next(APIError.badRequest("Category group name doesn't exist"));
+        const categoryGroupId = categoryGroup.id;
 
-        const category = await Category.create({name, categoryGroupId: categoryGroup.id});
+        const category = await Category.create({name, categoryGroupId});
 
         return res.json(category);
     },
