@@ -11,7 +11,7 @@ const categoryController = {
             const categoryGroup = await CategoryGroup.findByPk(groupId);
             if (categoryGroup === null) next(APIError.badRequest("Category group with such id doesn't exist"));
 
-            const category = await Category.create({name, groupId});
+            const category = await Category.create({name, categoryGroupId: groupId});
             return res.json(category);
         }
 
