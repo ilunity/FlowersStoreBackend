@@ -6,7 +6,7 @@ const router = new Router();
 
 
 router.post('/create', checkRole(userRoles.admin), itemController.create);
-router.post('/setCategory', checkRole(userRoles.admin), itemController.setCategory);
+router.post('/set_category', checkRole(userRoles.admin), itemController.setCategory);
 router.post('/get', itemController.getByCategories);
 router.get('/get', itemController.getAll);
 router.get('/:id', itemController.getOne);
