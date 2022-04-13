@@ -5,7 +5,7 @@ const router = new Router();
 
 
 router.post('/add_item', authMiddleware, basketController.addItem);
-router.get('/get_all', basketController.getItems);
+router.get('/get_all', authMiddleware, basketController.getItems);
 
 
 module.exports = router;
