@@ -32,18 +32,19 @@ const itemController = {
             const isAllNecessaryParametersSet = !name || !price || !count;
             if (isAllNecessaryParametersSet) next(APIError.noParameters());
 
-            const isCategorySet = Boolean(categoriesJSON);
-            let categoryIds = [];
-            if (isCategorySet) {
-                const categoryNames = JSON.parse(categoriesJSON);
 
-                for (const categoryName of categoryNames) {
-                    const category = await Category.findOne({where: {name: categoryName}});
-                    if (category === null) next(APIError.badRequest(`There is no such category: ${categoryName}.`));
-
-                    categoryIds.push(category.id);
-                }
-            }
+            // const isCategorySet = Boolean(categoriesJSON);
+            // let categoryIds = [];
+            // if (isCategorySet) {
+            //     const categoryNames = JSON.parse(categoriesJSON);
+            //
+            //     for (const categoryName of categoryNames) {
+            //         const category = await Category.findOne({where: {name: categoryName}});
+            //         if (category === null) next(APIError.badRequest(`There is no such category: ${categoryName}.`));
+            //
+            //         categoryIds.push(category.id);
+            //     }
+            // }
 
 
             const fileName = uuid.v4() + '.jpg';
@@ -65,8 +66,9 @@ const itemController = {
                 });
             }
 
-
+            const isCategorySet = Boolean(categoriesJSON);
             if (isCategorySet) {
+                const categoryIds = JSON.parse(categoriesJSON);
                 for (const categoryId of categoryIds) {
                     await CategoryItem.create({itemId: item.id, categoryId});
                 }
