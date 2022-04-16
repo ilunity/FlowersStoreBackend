@@ -33,20 +33,6 @@ const itemController = {
             if (isAllNecessaryParametersSet) next(APIError.noParameters());
 
 
-            // const isCategorySet = Boolean(categoriesJSON);
-            // let categoryIds = [];
-            // if (isCategorySet) {
-            //     const categoryNames = JSON.parse(categoriesJSON);
-            //
-            //     for (const categoryName of categoryNames) {
-            //         const category = await Category.findOne({where: {name: categoryName}});
-            //         if (category === null) next(APIError.badRequest(`There is no such category: ${categoryName}.`));
-            //
-            //         categoryIds.push(category.id);
-            //     }
-            // }
-
-
             const fileName = uuid.v4() + '.jpg';
             await img.mv(path.resolve(__dirname, "..", "static", fileName));
 
@@ -81,7 +67,7 @@ const itemController = {
     },
     async getByCategories(req, res, next) {
         // todo Возвращать item, только если item.count > 0
-        const {categoriesIdJSON} = req.body;
+        const {categories: categoriesIdJSON} = req.body;
         const {limit = 12, page = 1} = req.query;
         const offset = page * limit - limit;
 
@@ -100,7 +86,7 @@ const itemController = {
         const {limit = 12, page = 1} = req.query;
         const offset = page * limit - limit;
 
-        const items = await Item.findAll({limit, offset});
+        const items = await Item.findAndCountAll({limit, offset});
 
         if (items === null) next(APIError.badRequest('There are no items'));
         return res.json(items);
