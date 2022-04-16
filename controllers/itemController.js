@@ -84,9 +84,13 @@ const itemController = {
     },
     async getAll(req, res, next) {
         const {limit = 12, page = 1} = req.query;
-        const offset = page * limit - limit;
 
-        const items = await Item.findAndCountAll({limit, offset});
+        if (limit && page) {
+            const offset = page * limit - limit;
+            const items = await Item.findAndCountAll({limit, offset});
+        } else {
+            const items = await Item.findAndCountAll();
+        }
 
         if (items === null) next(APIError.badRequest('There are no items'));
         return res.json(items);
