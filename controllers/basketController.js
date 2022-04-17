@@ -1,14 +1,15 @@
 const {BasketItem, Basket, Item} = require('../models/models');
 const APIError = require('../error/APIError');
 
+// todo обработка ошибок
+
 const basketController = {
     async addItem(req, res, next) {
-        // todo передавать количество
-        const {itemId} = req.body;
+        const {itemId, count} = req.body;
         const userId = req.user.id;
 
         const basketId = await Basket.findOne({where: {userId}}).id;
-        const basketItem = await BasketItem.create({itemId, basketID: basketId});
+        const basketItem = await BasketItem.create({itemId, basketID: basketId, count});
 
         return res.json(basketItem);
     },
@@ -28,6 +29,36 @@ const basketController = {
         });
 
         return res.json(items);
+    },
+    async deleteItem(req, res, next) {
+        const {itemId} = req.body;
+        const userId = req.user.id;
+
+        const basketId = await Basket.findOne({where: {userId}}).id;
+
+        const basketItem = await BasketItem.destroy({
+            where: {
+                basketId,
+                itemId,
+            }
+        });
+
+        return res.json(basketItem);
+    },
+    async setCount(req, res, next) {
+        const {itemId, count} = req.body;
+        const userId = req.user.id;
+
+        const basketId = await Basket.findOne({where: {userId}}).id;
+
+        const basketItem = await BasketItem.update({count}, {
+            where: {
+                basketId,
+                itemId,
+            }
+        });
+
+        return res.json(basketItem);
     },
 };
 
